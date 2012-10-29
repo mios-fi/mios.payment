@@ -6,32 +6,33 @@ using NLog;
 using System.Web;
 
 namespace Mios.Payment.Providers {
-  public class SampoPaymentProvider : IPaymentProvider {
-    static readonly Logger log = LogManager.GetCurrentClassLogger();
+	public class SampoPaymentProvider : IPaymentProvider {
+		static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-    public string Account { get; set; }
+		public string Account { get; set; }
 		public string Secret { get; set; }
 		public string Url { get; set; }
 		public string Currency { get; set; }
 		public SampoPaymentProvider() {
 			Url = "https://verkkopankki.sampopankki.fi/SP/vemaha/VemahaApp";
 		}
-		public SampoPaymentProvider(string parameterString) : this() {
+		public SampoPaymentProvider(string parameterString)
+			: this() {
 			var parameters = HttpUtility.ParseQueryString(parameterString);
 			Account = parameters["account"];
 			Secret = parameters["secret"];
-      if(parameters["account"]==null) {
-        throw new ArgumentException("Missing required 'account' parameter in initialization string.");
-      }
-      if(parameters["secret"]==null) {
-        throw new ArgumentException("Missing required 'secret' parameter in initialization string.");
-      }
+			if(parameters["account"] == null) {
+				throw new ArgumentException("Missing required 'account' parameter in initialization string.");
+			}
+			if(parameters["secret"] == null) {
+				throw new ArgumentException("Missing required 'secret' parameter in initialization string.");
+			}
 			Url = parameters["url"] ?? Url;
 			Currency = parameters["currency"] ?? Currency;
 		}
 		public PaymentDetails GenerateDetails(string identifier, decimal amount, string returnUrl, string errorUrl, string message) {
-		  var referenceNumber = ReferenceCalculator.GenerateReferenceNumber(identifier);
-		  var formattedAmount = amount.ToString("N2", CultureInfo.CreateSpecificCulture("fi-fi"));
+			var referenceNumber = ReferenceCalculator.GenerateReferenceNumber(identifier);
+			var formattedAmount = amount.ToString("N2", CultureInfo.CreateSpecificCulture("fi-fi"));
 			var details = new PaymentDetails {
 				Url = Url,
 				Fields = new NameValueCollection(StringComparer.Ordinal) {
@@ -44,7 +45,7 @@ namespace Mios.Payment.Providers {
 					{ "VIRHEURL", errorUrl }
 				}
 			};
-			details.Fields["TARKISTE"] = 
+			details.Fields["TARKISTE"] =
 				String.Format("{0}{1}{2}{3}{4}{5}{6}{7}",
 					Secret,
 					details.Fields["SUMMA"],
@@ -58,13 +59,13 @@ namespace Mios.Payment.Providers {
 		}
 
 		public bool VerifyResponse(string identifier, decimal amount, NameValueCollection fields) {
-      var referenceNumber = ReferenceCalculator.GenerateReferenceNumber(identifier); 
-      if(!referenceNumber.Equals(fields["VIITE"])) {
+			var referenceNumber = ReferenceCalculator.GenerateReferenceNumber(identifier);
+			if(!referenceNumber.Equals(fields["VIITE"])) {
 				log.Error("Reference number comparison failed when verifying response from Sampo, expected {0} found {1}",
 					referenceNumber, fields["VIITE"]);
 				return false;
 			}
-			var expected = 
+			var expected =
 				String.Format("{0}{1}{2}{3}{4}{5}{6}",
 					Secret,
 					fields["VIITE"],

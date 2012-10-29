@@ -5,8 +5,8 @@ using NLog;
 using System.Web;
 
 namespace Mios.Payment.Providers {
-  public class LuottokuntaPaymentProvider : IPaymentProvider {
-    static readonly Logger log = LogManager.GetCurrentClassLogger();
+	public class LuottokuntaPaymentProvider : IPaymentProvider {
+		static readonly Logger log = LogManager.GetCurrentClassLogger();
 
 		public string Account { get; set; }
 		public string Secret { get; set; }
@@ -14,17 +14,18 @@ namespace Mios.Payment.Providers {
 		public LuottokuntaPaymentProvider() {
 			Url = "https://dmp2.luottokunta.fi/dmp/html_payments";
 		}
-		public LuottokuntaPaymentProvider(string parameterString) : this() {
+		public LuottokuntaPaymentProvider(string parameterString)
+			: this() {
 			var parameters = HttpUtility.ParseQueryString(parameterString);
 			Account = parameters["account"];
 			Secret = parameters["secret"];
-      if(parameters["account"]==null) {
-        throw new ArgumentException("Missing 'account' parameter in initialization string.");
-      }
-      if(parameters["secret"]==null) {
-        throw new ArgumentException("Missing 'secret' parameter in initialization string.");
-      }
-      Url = parameters["url"]??Url;
+			if(parameters["account"] == null) {
+				throw new ArgumentException("Missing 'account' parameter in initialization string.");
+			}
+			if(parameters["secret"] == null) {
+				throw new ArgumentException("Missing 'secret' parameter in initialization string.");
+			}
+			Url = parameters["url"] ?? Url;
 		}
 
 		public PaymentDetails GenerateDetails(string identifier, decimal amount, string returnUrl, string errorUrl, string message) {
@@ -56,28 +57,28 @@ namespace Mios.Payment.Providers {
 		}
 
 		public bool VerifyResponse(string identifier, decimal amount, NameValueCollection fields) {
-		  var formattedAmount = Math.Floor(amount*100).ToString(CultureInfo.InvariantCulture);
-		  var expected = 
+			var formattedAmount = Math.Floor(amount * 100).ToString(CultureInfo.InvariantCulture);
+			var expected =
 				String.Format("{0}{1}{2}{3}{4}",
 					Secret,
 					"1",
 					formattedAmount,
 					identifier,
 					Account).Hash("MD5").ToUpperInvariant();
-      if(expected.Equals(fields["LKMAC"])) {
-        return true;
-      }
-      log.Error(
-        "Hash check failed when verifying response, expected {0} found {1}, value computed from {2}{3}{4}{5}{6}",
-        expected,
-        fields["LKMAC"],
-        "SECRET",
-        "1",
-        formattedAmount,
-        identifier,
-        Account
-      );
-      return false;
+			if(expected.Equals(fields["LKMAC"])) {
+				return true;
+			}
+			log.Error(
+				"Hash check failed when verifying response, expected {0} found {1}, value computed from {2}{3}{4}{5}{6}",
+				expected,
+				fields["LKMAC"],
+				"SECRET",
+				"1",
+				formattedAmount,
+				identifier,
+				Account
+			);
+			return false;
 		}
 	}
 }

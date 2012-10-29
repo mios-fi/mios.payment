@@ -32,7 +32,8 @@ namespace Mios.Payment.Providers {
 			Providers = new string[0];
 		}
 
-		public AssistPaymentProvider(string parameterString) : this() {
+		public AssistPaymentProvider(string parameterString)
+			: this() {
 			var parameters = HttpUtility.ParseQueryString(parameterString);
 			if(String.IsNullOrEmpty(parameters["account"]))
 				throw new ArgumentException("Missing required 'account' parameter in initialization string.");
@@ -40,8 +41,8 @@ namespace Mios.Payment.Providers {
 			Url = parameters["url"] ?? Url;
 			TestMode = parameters["testMode"] == "true";
 			Currency = parameters["currency"] ?? Currency;
-			if(parameters["providers"]!=null) {
-				Providers = parameters["providers"].Split(new []{' ',','},StringSplitOptions.RemoveEmptyEntries);
+			if(parameters["providers"] != null) {
+				Providers = parameters["providers"].Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
 			}
 		}
 
@@ -56,9 +57,9 @@ namespace Mios.Payment.Providers {
 				{"URL_RETURN_NO", errorUrl },
         {"TestMode", TestMode ? "1" : "0" }
 			};
-			if(Providers.Count>0) {
+			if(Providers.Count > 0) {
 				foreach(var type in KnownProviders) {
-					fields.Add(type+"Payment", Providers.Contains(type) ? "1" : "0");
+					fields.Add(type + "Payment", Providers.Contains(type) ? "1" : "0");
 				}
 			}
 			return new PaymentDetails {
