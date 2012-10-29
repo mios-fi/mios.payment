@@ -1,0 +1,74 @@
+﻿@using System.Reflection;
+@using Mios.Payment;
+@using Mios.Payment.Providers;
+
+@{
+	var assistAccount = String.IsNullOrEmpty(Request.Form["assistMerchantId"]) ? "12345" : Request.Form["assistMerchantId"];
+	var providers = new Dictionary<string,IPaymentProvider> { 
+		{"assist",  new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
+		{"solo",    new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
+		{"op",      new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
+		{"pop",     new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/login.html&account=0000000000&secret=11111111111111111111")},
+		{"db",      new SampoPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd")},
+		{"hb",      new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBlogin.html&account=0000000000&secret=11111111111111111111")},
+		{"aab",     new CrosskeyPaymentProvider("url=https://online.alandsbanken.fi/service/paybutton&identifier=AABESHOPID&account=660100-01130855&secret=PAPEGOJA&receiverName=Test")},
+		{"tapiola", new CrosskeyPaymentProvider("url=https://pankki.tapiola.fi/service/paybutton&identifier=TAPESHOPID&account=363630-01652643&secret=PAPUKAIJA&receiverName=Test")},
+		{"spankki", new CrosskeyPaymentProvider("url=https://online.s­-pankki.fi/service/paybutton&identifier=SPANKKIESHOPID&account=393900-­01002369&secret=SPANKKI&receiverName=Test")}
+	};
+}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<body>
+		<form action="@Request.Url.AbsolutePath" method="post">
+			<label>Message <input type="text" value="" placeholder="Sample message"/></label><br />
+			<label>Amount <input type="text" value="" placeholder="100.00"/></label><br/>
+			<label>Assist MerchantId <input type="text" name="assistMerchantId" value="" placeholder="12345"/>
+			<input type="submit" value="Generate"/>
+		</form>
+		@{
+			if(Request.Url.Query=="?error") {
+				<p><strong>Returned with error from provider</strong></p>
+			}
+
+			var successful = providers
+				.Select(t => new { 
+					Name = t.Key,
+					Success = t.Value.VerifyResponse("12345", 100m, Request.QueryString) 
+				})
+				.Where(t=>t.Success && t.Name!="assist")
+				.Select(t=>t.Name)
+				.ToArray();
+			if(successful.Any()) {
+				<p>Payment verified by @String.Join(", ",successful)</p>
+			}
+			
+			if(Request.HttpMethod=="POST") {
+				decimal amount = 100m;
+				if(!String.IsNullOrEmpty(Request.Form["amount"]) && decimal.TryParse(Request.Form["amount"], out amount)) {}
+				var details = providers
+					.Select(t => new {
+						Name = t.Key,
+						Details = t.Value.GenerateDetails(
+							"12345", 
+							amount, 
+							new Uri(Request.Url, Request.Url.AbsolutePath).ToString(), 
+							new Uri(Request.Url, Request.Url.AbsolutePath + "?error").ToString(), 
+							String.IsNullOrEmpty(Request.Form["message"]) ? "Sample message" : Request.Form["message"])
+					})
+					.ToArray();
+			
+				foreach(var paymentDetail in details) {
+					<h4>@paymentDetail.Name</h4>
+					<p><i>@paymentDetail.Details.Url</i></p>
+					<form action="@paymentDetail.Details.Url" method="post">
+						@foreach(string field in paymentDetail.Details.Fields.Keys) { 
+							<label>@(field): <input type="readonly" name="@field" value="@paymentDetail.Details.Fields[field]"/></label><br/>
+						}
+						<input type="submit"/>
+					</form>
+				}
+			}
+		}
+	</body>
+</html>
