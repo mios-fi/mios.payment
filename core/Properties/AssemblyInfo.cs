@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("core")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Mios.Payment")]
+[assembly: AssemblyDescription("A library for generating and verifying payment details for various online payment providers")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("core")]
+[assembly: AssemblyCompany("Mios Ltd")]
+[assembly: AssemblyProduct("Mios.Payment")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
