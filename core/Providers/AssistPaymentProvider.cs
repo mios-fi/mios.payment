@@ -50,7 +50,7 @@ namespace Mios.Payment.Providers {
 			var fields = new NameValueCollection {
 				{"Merchant_ID", Account },
 				{"OrderNumber", identifier },
-				{"OrderAmount", amount.ToString("N2",CultureInfo.InvariantCulture) },
+				{"OrderAmount", amount.ToString("F2",CultureInfo.InvariantCulture) },
 				{"OrderCurrency", Currency },
 				{"OrderComment", message },
 				{"URL_RETURN_OK", returnUrl },
