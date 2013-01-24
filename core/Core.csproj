@@ -48,6 +48,7 @@
     <Compile Include="IPaymentProvider.cs" />
     <Compile Include="Providers\AssistPaymentProvider.cs" />
     <Compile Include="Providers\CrosskeyPaymentProvider.cs" />
+    <Compile Include="Providers\DanskeBankPaymentProvider.cs" />
     <Compile Include="Providers\LuottokuntaPaymentProvider.cs" />
     <Compile Include="Providers\NordeaPaymentProvider.cs" />
     <Compile Include="Providers\OsuuspankkiPaymentProvider.cs" />
