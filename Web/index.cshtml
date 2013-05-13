@@ -5,15 +5,16 @@
 @{
 	var assistAccount = String.IsNullOrEmpty(Request.Form["assistMerchantId"]) ? "12345" : Request.Form["assistMerchantId"];
 	var providers = new Dictionary<string,IPaymentProvider> { 
-		{"assist",  new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
-		{"solo",    new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
-		{"op",      new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
-		{"pop",     new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/login.html&account=0000000000&secret=11111111111111111111")},
-		{"db",      new DanskeBankPaymentProvider("account=000000000000&currency=EUR&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd")},
-		{"hb",      new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBlogin.html&account=0000000000&secret=11111111111111111111")},
-		{"aab",     new CrosskeyPaymentProvider("url=https://online.alandsbanken.fi/service/paybutton&identifier=AABESHOPID&account=660100-01130855&secret=PAPEGOJA&receiverName=Test")},
-		{"tapiola", new CrosskeyPaymentProvider("url=https://pankki.tapiola.fi/service/paybutton&identifier=TAPESHOPID&account=363630-01652643&secret=PAPUKAIJA&receiverName=Test")},
-		{"spankki", new CrosskeyPaymentProvider("url=https://online.s­-pankki.fi/service/paybutton&identifier=SPANKKIESHOPID&account=393900-­01002369&secret=SPANKKI&receiverName=Test")}
+		{"assist",   new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
+		{"solo",     new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
+		{"op",       new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
+		{"pop",      new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/login.html&account=0000000000&secret=11111111111111111111")},
+		{"db",       new DanskeBankPaymentProvider("account=000000000000&currency=EUR&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd")},
+		{"hb",       new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBlogin.html&account=0000000000&secret=11111111111111111111")},
+		{"aab",      new CrosskeyPaymentProvider("url=https://online.alandsbanken.fi/service/paybutton&identifier=AABESHOPID&account=660100-01130855&secret=PAPEGOJA&receiverName=Test")},
+		{"tapiola",  new CrosskeyPaymentProvider("url=https://pankki.tapiola.fi/service/paybutton&identifier=TAPESHOPID&account=363630-01652643&secret=PAPUKAIJA&receiverName=Test")},
+		{"spankki",  new CrosskeyPaymentProvider("url=https://online.s­-pankki.fi/service/paybutton&identifier=SPANKKIESHOPID&account=393900-­01002369&secret=SPANKKI&receiverName=Test")},
+		{"senordea", new NordeaSwedenPaymentProvider("url=https://gfs.nb.se/e-betalning/test_direktbetalning&account=999999&secret=1234567890ABCDEF1234567890ABCDEF&kvv=FF365893D899291C3BF505FB3175E880")}
 	};
 }
 
@@ -30,11 +31,10 @@
 			if(Request.Url.Query=="?error") {
 				<p><strong>Returned with error from provider</strong></p>
 			}
-
 			var successful = providers
 				.Select(t => new { 
 					Name = t.Key,
-					Success = t.Value.VerifyResponse("12345", 100m, Request.QueryString) 
+					Success = t.Value.VerifyResponse("12345", 100m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
 				})
 				.Where(t=>t.Success && t.Name!="assist")
 				.Select(t=>t.Name)
