@@ -16,7 +16,7 @@ namespace Tests {
 		[Fact]
 		public void ShouldReadRSAParametersFromPrivateKey() {
 			RSAParameters parameters;
-			using(var stream = typeof(ProcessPEMsTest).Assembly.GetManifestResourceStream("Tests.Resources.testkey.pem"))
+			using(var stream = typeof(ProcessPEMsTest).Assembly.GetManifestResourceStream("Tests.Resources.kaupmees_priv.pem"))
 			using(var reader = new StreamReader(stream)) {
 				AsymmetricCipherKeyPair pair = null;
 				while(true) {
