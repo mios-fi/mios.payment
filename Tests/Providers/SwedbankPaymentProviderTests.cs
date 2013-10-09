@@ -51,6 +51,11 @@ namespace Tests.Providers {
 			var expected = "TsDpZ4xgw1RAnVUCDybzcSXrrF5jTsjKKaxGK6H8zN3U637kCwcY6u1lfX/WtcZ7+JbNIRjzWfDFsndJ98ndCwsETb07AWnV7LVwVKt5IWHFMYzwhjq9bMkk6BohAR4VJ5ngmc1rFmOLDiOCbLZPwxFJEI7jeTDlFjJSUtWzkbQ=";
 			Assert.Equal(expected, details.Fields["VK_MAC"]);
 		}
+		[Fact]
+		public void ProducesTwoDecimalAmounts() {
+			var details = provider.GenerateDetails("123", "88", 33.1000m, "http://kool.kng.edu.ee/est/i.php", "http://kool.kng.edu.ee/est/i.php", "Porgandid");
+			Assert.Equal("33.10", details.Fields["VK_AMOUNT"]);
+		}
 
 		[Fact]
 		public void VerifiesSuccessfulReturnHMAC() {

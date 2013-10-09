@@ -67,7 +67,7 @@ namespace Mios.Payment.Providers {
 				{ "VK_VERSION", "008" },
 				{ "VK_SND_ID", MerchantId },
 				{ "VK_STAMP", stamp },
-				{ "VK_AMOUNT", amount.ToString(CultureInfo.InvariantCulture)},
+				{ "VK_AMOUNT", amount.ToString("F2", CultureInfo.InvariantCulture)},
 				{ "VK_CURR", Currency },
 				{ "VK_ACC", Account },
 				{ "VK_NAME", ReceiverName },
