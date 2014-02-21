@@ -43,13 +43,15 @@ namespace Mios.Payment.Providers {
 					{ "SUMMA",    formattedAmount },
 					{ "VIITE",    referenceNumber },
 					{ "VALUUTTA", Currency },
-					{ "VERSIO",   "3" },
+					{ "VERSIO",   "4" },
+					{ "ALG",      "03" },
+					{ "ERAPAIVA", DateTime.Now.ToString("dd.MM.yyyy") },
 					{ "OKURL",    returnUrl },
 					{ "VIRHEURL", errorUrl }
 				}
 			};
 			details.Fields["TARKISTE"] =
-				String.Format("{0}{1}{2}{3}{4}{5}{6}{7}",
+				String.Format("{0}&{1}&{2}&{3}&{4}&{5}&{6}&{7}&{8}&",
 					Secret,
 					details.Fields["SUMMA"],
 					details.Fields["VIITE"],
@@ -57,7 +59,8 @@ namespace Mios.Payment.Providers {
 					details.Fields["VERSIO"],
 					details.Fields["VALUUTTA"],
 					details.Fields["OKURL"],
-					details.Fields["VIRHEURL"]).Hash("MD5").ToUpperInvariant();
+					details.Fields["VIRHEURL"],
+					details.Fields["ERAPAIVA"]).Hash("SHA256").ToUpperInvariant();
 			return details;
 		}
 
@@ -69,19 +72,20 @@ namespace Mios.Payment.Providers {
 				return false;
 			}
 			var expected =
-				String.Format("{0}{1}{2}{3}{4}{5}{6}",
+				String.Format("{0}&{1}&{2}&{3}&{4}&{5}&{6}&{7}&",
 					Secret,
 					fields["VIITE"],
 					fields["SUMMA"],
 					fields["STATUS"],
 					fields["KNRO"],
 					fields["VERSIO"],
-					fields["VALUUTTA"]).Hash("MD5").ToUpperInvariant();
+					fields["VALUUTTA"],
+					fields["ERAPAIVA"]).Hash("SHA256").ToUpperInvariant();
 			if(expected.Equals(fields["TARKISTE"])) {
 				return true;
 			}
 			log.Error(
-				"Hash check failed when verifying response from Danske Bank, expected {0} found {1}, value computed from {2}{3}{4}{5}{6}{7}{8}",
+				"Hash check failed when verifying response from Danske Bank, expected {0} found {1}, value computed from {2}{3}{4}{5}{6}{7}{8}{9}",
 				expected,
 				fields["TARKISTE"],
 				"SECRET",
@@ -90,7 +94,8 @@ namespace Mios.Payment.Providers {
 				fields["STATUS"],
 				fields["KNRO"],
 				fields["VERSIO"],
-				fields["VALUUTTA"]
+				fields["VALUUTTA"],
+				fields["ERAPAIVA"]
 				);
 			return false;
 		}

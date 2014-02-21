@@ -7,6 +7,7 @@
 	var providers = new Dictionary<string,IPaymentProvider> { 
 		{"assist",     new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
+		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},
 		{"op",         new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
 		{"pop",        new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/login.html&account=0000000000&secret=11111111111111111111")},
 		{"db",         new DanskeBankPaymentProvider("account=000000000000&currency=EUR&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd")},
