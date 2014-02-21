@@ -53,17 +53,17 @@ namespace Tests.Providers {
 			}
 		}
 		[Fact]
-		public void ValidationShouldBeSuccessfulForPositiveTestVectors() {
+		public void AcceptsPositiveTestVectors() {
 			var provider = new HandelsbankenPaymentProvider("account=9999&secret=aaaabbbb");
 			Assert.True(provider.VerifyResponse(positiveTestVector["ordernummer"], 1100m, positiveTestVector));
 		}
 		[Fact]
-		public void ValidationShouldFailForNegativeTestVectors() {
+		public void RejectsNegativeTestVectors() {
 			var provider = new HandelsbankenPaymentProvider("account=9999&secret=aaaabbbb");
 			Assert.False(provider.VerifyResponse(negativeTestVector["ordernummer"], 1100m, negativeTestVector));
 		}
 		[Fact]
-		public void ValidationShouldFailForMismatchedHash() {
+		public void RejectsMismatchedHash() {
 			var values = new NameValueCollection(positiveTestVector) {
 				{"kontrollsumma", "111111117286c3159b65a705cf880570"}
 			};
@@ -71,7 +71,7 @@ namespace Tests.Providers {
 			Assert.False(provider.VerifyResponse(values["ordernummer"], 1100m, values));
 		}
 		[Fact]
-		public void ValidationShouldFailForMismatchedIdentifier() {
+		public void RejectsMismatchedIdentifier() {
 			var provider = new HandelsbankenPaymentProvider("account=9999&secret=aaaabbbb");
 			Assert.False(provider.VerifyResponse("0000000001", 1100m, positiveTestVector));
 		}
