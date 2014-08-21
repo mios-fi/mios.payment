@@ -9,7 +9,9 @@
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
 		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},
 		{"op",         new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
-		{"pop",        new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/login.html&account=0000000000&secret=11111111111111111111")},
+		{"aktia",      new SamlinkPaymentProvider("url=https://auth.aktia.fi/vmtest&account=1111111111111&secret=1234567890123456789012345678901234567890123456789012345678901234") { Version = 10, KeyVersion = "0001" }},
+		{"sp",				 new SamlinkPaymentProvider("url=https://verkkomaksu.saastopankki.fi/vm/login.html&account=0000000000&secret=11111111111111111111") { Version = 3 }},
+		{"pop",        new SamlinkPaymentProvider("url=https://verkkomaksu.poppankki.fi/vm/login.html&account=0000000000&secret=11111111111111111111") { Version = 3 }},
 		{"db",         new DanskeBankPaymentProvider("account=000000000000&currency=EUR&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd")},
 		{"hb",         new SamlinkPaymentProvider("url=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBlogin.html&account=0000000000&secret=11111111111111111111")},
 		{"aab",        new CrosskeyPaymentProvider("url=https://online.alandsbanken.fi/service/paybutton&identifier=AABESHOPID&account=660100-01130855&secret=PAPEGOJA&receiverName=Test")},
@@ -24,54 +26,52 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <body>
 	<form action="@Request.Url.AbsolutePath" method="post">
-	<label>Message <input type="text" value="" placeholder="Sample message" /></label><br />
-	<label>Amount <input type="text" value="" placeholder="100.00" /></label><br />
-	<label>
-		Assist MerchantId <input type="text" name="assistMerchantId" value="" placeholder="12345" />
+		<label>Provider
+			<select name="provider">@foreach(var key in providers.Keys) { 
+				<option>@key</option> 
+			}</select>
+		</label>
+		<label>Assist MerchantId <input type="text" name="assistMerchantId" value="" placeholder="12345" /></label><br />
 		<input type="submit" value="Generate" />
 	</form>
 	@{
-			if(Request.Url.Query=="?error") {
-		<p><strong>Returned with error from provider</strong></p>
-			}
-			var successful = providers
-				.Select(t => new { 
-					Name = t.Key,
-					Success = t.Value.VerifyResponse("12345", 100m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
-				})
-				.Where(t=>t.Success && t.Name!="assist")
-				.Select(t=>t.Name)
-				.ToArray();
-			if(successful.Any()) {
-		<p>Payment verified by @String.Join(", ",successful)</p>
-			}
+		if(Request.Url.Query=="?error") {
+			<p><strong>Returned with error from provider</strong></p>
+		}
+		var successful = providers
+			.Select(t => new { 
+				Name = t.Key,
+				Success = t.Value.VerifyResponse("12345", 100m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
+			})
+			.Where(t=>t.Success && t.Name!="assist")
+			.Select(t=>t.Name)
+			.ToArray();
+		if(successful.Any()) {
+			<p>Payment verified by @String.Join(", ",successful)</p>
+		}
 			
-			if(Request.HttpMethod=="POST") {
-				decimal amount = 100m;
-				if(!String.IsNullOrEmpty(Request.Form["amount"]) && decimal.TryParse(Request.Form["amount"], out amount)) {}
-				var details = providers
-					.Select(t => new {
-						Name = t.Key,
-						Details = t.Value.GenerateDetails(
-							"12345", 
-							amount, 
-							new Uri(Request.Url, Request.Url.AbsolutePath).ToString(), 
-							new Uri(Request.Url, Request.Url.AbsolutePath + "?error").ToString(), 
-							String.IsNullOrEmpty(Request.Form["message"]) ? "Sample message" : Request.Form["message"])
-					})
-					.ToArray();
-			
-				foreach(var paymentDetail in details) {
-		<h4>@paymentDetail.Name</h4>
-		<p><i>@paymentDetail.Details.Url</i></p>
-		<form action="@paymentDetail.Details.Url" method="post">
-		@foreach(string field in paymentDetail.Details.Fields.Keys) { 
-			<label>@(field): <input type="readonly" name="@field" value="@paymentDetail.Details.Fields[field]"/></label><br />
-						}
-		<input type="submit" />
-		</form>
-				}
+		if(Request.HttpMethod=="POST") {
+			IPaymentProvider provider;
+			if(!providers.TryGetValue(Request.Form["provider"], out provider)) { 
+				<p>Unknown provider @Request.Form["provider"]</p>
+			} else {
+				var paymentDetail = provider.GenerateDetails(
+					"12345",
+					100.25m,
+					new Uri(Request.Url, Request.Url.AbsolutePath).ToString(),
+					new Uri(Request.Url, Request.Url.AbsolutePath + "?error").ToString(),
+					"Sample message"
+				);
+				<h4>@provider.GetType().Name</h4>
+				<p><i>@paymentDetail.Url</i></p>
+				<form action="@paymentDetail.Url" method="post">
+					@foreach(string field in paymentDetail.Fields.Keys) {
+						<label>@(field): <input type="readonly" name="@field" value="@paymentDetail.Fields[field]" /></label><br />
+					}
+					<input type="submit" />
+				</form>
 			}
-	}
+		}
+}
 </body>
 </html>
