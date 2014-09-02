@@ -5,6 +5,7 @@
 @{
 	var assistAccount = String.IsNullOrEmpty(Request.Form["assistMerchantId"]) ? "12345" : Request.Form["assistMerchantId"];
 	var providers = new Dictionary<string,IPaymentProvider> { 
+		{"maksekeskus",new MaksekeskusPaymentProvider("account=&secret=&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
 		{"assist",     new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
 		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},

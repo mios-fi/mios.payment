@@ -39,6 +39,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net35\NLog.dll</HintPath>
     </Reference>
@@ -54,6 +57,7 @@
     <Compile Include="IPaymentProvider.cs" />
     <Compile Include="Providers\AssistPaymentProvider.cs" />
     <Compile Include="Providers\HandelsbankenPaymentProvider.cs" />
+    <Compile Include="Providers\MaksekeskusPaymentProvider.cs" />
     <Compile Include="Providers\NordeaSwedenPaymentProvider.cs" />
     <Compile Include="Providers\CrosskeyPaymentProvider.cs" />
     <Compile Include="Providers\DanskeBankPaymentProvider.cs" />
