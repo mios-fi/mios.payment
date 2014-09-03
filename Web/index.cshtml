@@ -3,10 +3,13 @@
 @using Mios.Payment.Providers;
 
 @{
-	var assistAccount = String.IsNullOrEmpty(Request.Form["assistMerchantId"]) ? "12345" : Request.Form["assistMerchantId"];
-	var providers = new Dictionary<string,IPaymentProvider> { 
+	var assistAccount = String.IsNullOrEmpty(Request["assistMerchantId"]) ? "12345" : Request["assistMerchantId"];
+	var dibsAccount = String.IsNullOrEmpty(Request["dibsAccount"]) ? "123456" : Request["dibsAccount"];
+	var dibsSecret = String.IsNullOrEmpty(Request["dibsSecret"]) ? "123456" : Request["dibsSecret"];
+	var providers = new Dictionary<string, IPaymentProvider> { 
 		{"maksekeskus",new MaksekeskusPaymentProvider("account=&secret=&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
 		{"assist",     new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
+		{"dibs",       new DibsPaymentProvider("account="+dibsAccount+"&secret="+dibsSecret) { TestMode = true }},
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
 		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},
 		{"op",         new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
@@ -23,7 +26,7 @@
 	};
 }
 
-	<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <body>
 	<form action="@Request.Url.AbsolutePath" method="post">
@@ -32,7 +35,9 @@
 				<option>@key</option> 
 			}</select>
 		</label>
-		<label>Assist MerchantId <input type="text" name="assistMerchantId" value="" placeholder="12345" /></label><br />
+		<label>Assist Account Id <input type="text" name="assistAccount" value="@assistAccount" placeholder="12345" /></label><br />
+		<label>Dibs Account Id <input type="text" name="dibsAccount" value="@dibsAccount" placeholder="" /></label><br />
+		<label>Dibs Secret <input type="text" name="dibsSecret" value="@dibsSecret" placeholder="" /></label><br />
 		<input type="submit" value="Generate" />
 	</form>
 	@{
@@ -42,18 +47,27 @@
 		var successful = providers
 			.Select(t => new { 
 				Name = t.Key,
-				Success = t.Value.VerifyResponse("12345", 100m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
+				Success = t.Value.VerifyResponse("12345", 100.25m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
 			})
 			.Where(t=>t.Success && t.Name!="assist")
-			.Select(t=>t.Name)
-			.ToArray();
-		if(successful.Any()) {
-			<p>Payment verified by @String.Join(", ",successful)</p>
-		}
+			.Select(t=>t.Name+"="+t.Success);
+
+			<p>Verifiers say, @String.Join(", ",successful)</p>
 			
 		if(Request.HttpMethod=="POST") {
+			if(Request.Form["dibsAcount"]!=null) {
+				Response.Cookies.Add(new HttpCookie("dibsAccount", Request.Form["dibsAccount"]));
+			}
+			if(Request.Form["dibsSecret"]!=null) {
+				Response.Cookies.Add(new HttpCookie("dibsSecret", Request.Form["dibsSecret"]));
+			}
+			if(Request.Form["assistAccount"]!=null) {
+				Response.Cookies.Add(new HttpCookie("assistAccount", Request.Form["assistAccount"]));
+			}
 			IPaymentProvider provider;
-			if(!providers.TryGetValue(Request.Form["provider"], out provider)) { 
+			if(Request.Form["provider"]==null) {
+
+			} else if(!providers.TryGetValue(Request.Form["provider"], out provider)) { 
 				<p>Unknown provider @Request.Form["provider"]</p>
 			} else {
 				var paymentDetail = provider.GenerateDetails(
