@@ -9,7 +9,7 @@
 	var providers = new Dictionary<string, IPaymentProvider> { 
 		{"maksekeskus",new MaksekeskusPaymentProvider("account=&secret=&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
 		{"assist",     new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
-		{"dibs",       new DibsPaymentProvider("account="+dibsAccount+"&secret="+dibsSecret) { TestMode = true }},
+		{"dibs",       new DibsPaymentProvider("account="+dibsAccount+"&secret="+dibsSecret) { TestMode = true, PaymentTypes = "ALL_CARDS,ALL_NETBANKS" }},
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
 		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},
 		{"op",         new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},

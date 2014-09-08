@@ -17,6 +17,7 @@ namespace Mios.Payment.Providers {
 		public string Secret { get; set; }
 		public string Url { get; set; }
 		public string Currency { get; set; }
+		public string PaymentTypes { get; set; }
 		public bool TestMode { get; set; }
 
 		public DibsPaymentProvider() {
@@ -33,12 +34,9 @@ namespace Mios.Payment.Providers {
 			}
 			MerchantId = parameters["account"];
 			Secret = parameters["secret"];
-			if(parameters["url"] != null) {
-				Url = parameters["url"];
-			}
-			if(parameters["currency"] != null) {
-				Currency = parameters["currency"];
-			}
+			PaymentTypes = parameters["paymentTypes"];
+			Url = parameters["url"] ?? Url;
+			Currency = parameters["currency"] ?? Currency;
 			TestMode = "true".Equals(parameters["test"]);
 		}
 
@@ -50,6 +48,7 @@ namespace Mios.Payment.Providers {
 					{"merchant", MerchantId},
 					{"amount", (amount*100).ToString("F0", CultureInfo.InvariantCulture)},
 					{"currency", Currency},
+					{"payType", PaymentTypes},
 					{"acceptReturnUrl", returnUrl},
 					{"cancelReturnUrl", errorUrl},
 					{"language", CultureInfo.CurrentCulture.Name}
