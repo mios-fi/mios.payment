@@ -122,7 +122,7 @@ namespace Mios.Payment.Providers {
 		private string Hash(string algorithm, params string[] parts) {
 			var str = String.Join("&", parts)+"&";
 			var hash = (String.Join("&", parts)+"&").Hash(algorithm).ToUpperInvariant();
-			log.Debug("Produced hash {0} using {1} for {2}", hash, algorithm, str);
+			log.Trace("Produced hash {0} using {1} for {2}", hash, algorithm, str);
 			return hash;
 		}
 
