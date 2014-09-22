@@ -47,7 +47,7 @@
 		var successful = providers
 			.Select(t => new { 
 				Name = t.Key,
-				Success = t.Value.VerifyResponse("12345", 100.25m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
+				Success = t.Value.VerifyResponse("12345", 100.20m, Request.HttpMethod=="POST" ? Request.Form : Request.QueryString) 
 			})
 			.Where(t=>t.Success && t.Name!="assist")
 			.Select(t=>t.Name+"="+t.Success);
@@ -72,7 +72,7 @@
 			} else {
 				var paymentDetail = provider.GenerateDetails(
 					"12345",
-					100.25m,
+					100.20m,
 					new Uri(Request.Url, Request.Url.AbsolutePath).ToString(),
 					new Uri(Request.Url, Request.Url.AbsolutePath + "?error").ToString(),
 					"Sample message"

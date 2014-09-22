@@ -56,7 +56,7 @@ namespace Mios.Payment.Providers {
 				return false;
 			var returnModel = JsonConvert.DeserializeObject<ReturnModel>(json);
 
-			var expectedHash = (returnModel.paymentId+returnModel.amount.ToString("f2", CultureInfo.InvariantCulture)+returnModel.status+Secret).Hash("SHA512").ToUpperInvariant();
+			var expectedHash = (returnModel.paymentId+returnModel.amount+returnModel.status+Secret).Hash("SHA512").ToUpperInvariant();
 			if(!expectedHash.Equals(returnModel.signature)) {
 				Log.Warn("Unable to verify payment, expected signature {0} but found {1}, computed from {2}+{3}+{4}+SECRET", expectedHash, returnModel.signature, returnModel.paymentId, returnModel.amount, returnModel.status);
 				return false;
@@ -65,8 +65,13 @@ namespace Mios.Payment.Providers {
 				Log.Warn("Unable to verify payment, expected identifier {0} but received {1}", identifier, returnModel.paymentId);
 				return false;
 			}
-			if(returnModel.amount!=amount) {
-				Log.Warn("Unable to verify payment, expected amount {0} but received {1}", amount, returnModel.amount);
+			decimal parsedAmount;
+			if(returnModel.amount==null || !decimal.TryParse(returnModel.amount, NumberStyles.Number, CultureInfo.InvariantCulture, out parsedAmount)) {
+				Log.Warn("Missing or invalid amount");
+				return false;
+			}
+			if(parsedAmount!=amount) {
+				Log.Warn("Unable to verify payment, expected amount {0} but received '{1}'", amount, parsedAmount);
 				return false;
 			}
 			if(!returnModel.status.Equals("PAID", StringComparison.OrdinalIgnoreCase)) {
@@ -79,7 +84,7 @@ namespace Mios.Payment.Providers {
 		public class ReturnModel {
 			public string shopId { get; set; }
 			public string paymentId { get; set; }
-			public decimal amount { get; set; }
+			public string amount { get; set; }
 			public string status { get; set; }
 			public string signature { get; set; }
 		}

@@ -16,7 +16,7 @@ namespace Tests.Providers {
 		public MaksekeskusPaymentProviderTests() {
 			provider = new MaksekeskusPaymentProvider("account=xyz&secret=1234567890");
 			details = new MaksekeskusPaymentProvider.ReturnModel {
-				shopId = "xyz", paymentId = "123456", amount = 12.25m, status = "PAID",
+				shopId = "xyz", paymentId = "123456", amount = "12.25", status = "PAID",
 				signature = ("123456"+"12.25"+"PAID"+"1234567890").Hash("SHA512").ToUpperInvariant()
 			};
 		}
