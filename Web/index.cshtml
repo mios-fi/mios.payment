@@ -3,13 +3,13 @@
 @using Mios.Payment.Providers;
 
 @{
-	var assistAccount = String.IsNullOrEmpty(Request["assistMerchantId"]) ? "12345" : Request["assistMerchantId"];
-	var dibsAccount = String.IsNullOrEmpty(Request["dibsAccount"]) ? "123456" : Request["dibsAccount"];
+	var account = String.IsNullOrEmpty(Request["account"]) ? "12345" : Request["account"];
+	var secret = String.IsNullOrEmpty(Request["secret"]) ? "123456" : Request["secret"];
 	var dibsSecret = String.IsNullOrEmpty(Request["dibsSecret"]) ? "123456" : Request["dibsSecret"];
 	var providers = new Dictionary<string, IPaymentProvider> { 
-		{"maksekeskus",new MaksekeskusPaymentProvider("account=&secret=&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
-		{"assist",     new AssistPaymentProvider("account="+assistAccount+"&testMode=true")},
-		{"dibs",       new DibsPaymentProvider("account="+dibsAccount+"&secret="+dibsSecret) { TestMode = true, PaymentTypes = "ALL_CARDS,ALL_NETBANKS" }},
+		{"maksekeskus",new MaksekeskusPaymentProvider("account="+account+"&secret="+secret+"&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
+		{"assist",     new AssistPaymentProvider("account="+account+"&testMode=true")},
+		{"dibs",       new DibsPaymentProvider("account="+account+"&secret="+dibsSecret) { TestMode = true, PaymentTypes = "ALL_CARDS,ALL_NETBANKS" }},
 		{"solo",       new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
 		{"danske",     new DanskeBankPaymentProvider("account=000000000000&secret=jumCLB4T2ceZWGJ9ztjuhn5FaeZnTm5HpfDXWU2APRqfDcsrBs8mqkFARzm7uXKd&currency=EUR")},
 		{"op",         new OsuuspankkiPaymentProvider("account=Esittelymyyja&secret=Esittelykauppiaansalainentunnus")},
@@ -34,10 +34,10 @@
 			<select name="provider">@foreach(var key in providers.Keys) { 
 				<option>@key</option> 
 			}</select>
-		</label>
-		<label>Assist Account Id <input type="text" name="assistAccount" value="@assistAccount" placeholder="12345" /></label><br />
-		<label>Dibs Account Id <input type="text" name="dibsAccount" value="@dibsAccount" placeholder="" /></label><br />
-		<label>Dibs Secret <input type="text" name="dibsSecret" value="@dibsSecret" placeholder="" /></label><br />
+		</label><br />
+		<label>Account <input type="text" name="account" value="@account" placeholder="12345" /></label><br />
+		<label>Secret <input type="text" name="secret" value="@secret" placeholder="" /></label><br />
+		<label>DibsSecret <input type="text" name="dibsSecret" value="@dibsSecret" placeholder="" /></label><br />
 		<input type="submit" value="Generate" />
 	</form>
 	@{
@@ -55,14 +55,14 @@
 			<p>Verifiers say, @String.Join(", ",successful)</p>
 			
 		if(Request.HttpMethod=="POST") {
-			if(Request.Form["dibsAcount"]!=null) {
-				Response.Cookies.Add(new HttpCookie("dibsAccount", Request.Form["dibsAccount"]));
+			if(Request.Form["account"]!=null) {
+				Response.Cookies.Add(new HttpCookie("account", Request.Form["account"]));
+			}
+			if(Request.Form["secret"]!=null) {
+				Response.Cookies.Add(new HttpCookie("secret", Request.Form["secret"]));
 			}
 			if(Request.Form["dibsSecret"]!=null) {
 				Response.Cookies.Add(new HttpCookie("dibsSecret", Request.Form["dibsSecret"]));
-			}
-			if(Request.Form["assistAccount"]!=null) {
-				Response.Cookies.Add(new HttpCookie("assistAccount", Request.Form["assistAccount"]));
 			}
 			IPaymentProvider provider;
 			if(Request.Form["provider"]==null) {
