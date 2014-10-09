@@ -68,7 +68,9 @@ namespace Mios.Payment.Providers {
 			};
 		}
 		public bool VerifyResponse(string identifier, decimal amount, NameValueCollection fields) {
-			return true;
+			// Assist does not provide direct response on payment
+			// status so we always have to respond with false.
+			return false;
 		}
 	}
 }
