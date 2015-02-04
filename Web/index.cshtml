@@ -52,7 +52,7 @@
 			.Where(t=>t.Success && t.Name!="assist")
 			.Select(t=>t.Name+"="+t.Success);
 
-			<p>Verifiers say, @String.Join(", ",successful)</p>
+		<p>Verifiers say, @String.Join(", ",successful)</p>
 			
 		if(Request.HttpMethod=="POST") {
 			if(Request.Form["account"]!=null) {
@@ -87,6 +87,6 @@
 				</form>
 			}
 		}
-}
+	}
 </body>
 </html>

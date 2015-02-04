@@ -1,0 +1,72 @@
+﻿@using System.Reflection;
+@using System.Threading.Tasks;
+@using Mios.Payment;
+@using Mios.Payment.Verifiers;
+
+@{
+	var account = String.IsNullOrEmpty(Request["account"]) ? null : Request["account"];
+	var secret = String.IsNullOrEmpty(Request["secret"]) ? null : Request["secret"];
+	var providers = new Dictionary<string, IVerificationProvider> {
+		{"solo", new NordeaVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"op", new OpVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+	};
+}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<body>
+	<form action="@Request.Url.AbsolutePath" method="post">
+	<label>
+		Provider
+		<select name="provider">
+			@foreach(var key in providers.Keys) {
+				<option>@key</option>
+			}
+		</select>
+	</label><br />
+	<label>Account <input type="text" name="account" value="@account" /></label><br />
+	<label>Secret <input type="text" name="secret" value="@secret" /></label><br />
+	<label>Identifier <input type="text" name="identifier" /></label><br />
+	<label>Amount <input type="text" name="amount"/></label><br />
+	<input type="submit" value="Verifiy" />
+</form>
+@{
+	if(Request.HttpMethod=="POST") {
+		if(Request.Form["account"]!=null) {
+			Response.Cookies.Add(new HttpCookie("account", Request.Form["account"]));
+		}
+		if(Request.Form["secret"]!=null) {
+			Response.Cookies.Add(new HttpCookie("secret", Request.Form["secret"]));
+		}
+		IVerificationProvider provider;
+		if(Request.Form["provider"]==null) {
+		} else if(!providers.TryGetValue(Request.Form["provider"], out provider)) {
+			<p>Unknown provider @Request.Form["provider"]</p>
+		} else if(String.IsNullOrEmpty(Request.Form["identifier"])) {
+			<p>Missing identifier</p>
+		} else {
+			decimal amount = 0;
+			decimal.TryParse(Request.Form["amount"], out amount);
+			try {
+				var task = Task.Run(() => provider.VerifyPayment(Request.Form["identifier"], amount)).Result;
+				if(task) {
+					<p>Successful verification</p>
+				} else {
+					<p>Not verified</p>
+				}
+			} catch(AggregateException ae) {
+				var e = ae.InnerExceptions[0];
+				<p>Exception while verifying payment</p>
+				<pre>@e.ToString()</pre>
+				<dl>
+					@foreach(System.Collections.DictionaryEntry data in e.Data) {
+						<dt>@data.Key</dt>
+						<dd>@data.Value</dd>
+					}
+				</dl>
+			}
+		}
+	}
+}
+</body>
+</html>
