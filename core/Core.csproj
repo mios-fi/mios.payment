@@ -75,8 +75,10 @@
     <Compile Include="Providers\SampoPaymentProvider.cs" />
     <Compile Include="ReferenceCalculator.cs" />
     <Compile Include="VerificationProviderException.cs" />
+    <Compile Include="Verifiers\DanskeBankVerificationProvider.cs" />
     <Compile Include="Verifiers\NordeaVerificationProvider.cs" />
     <Compile Include="Verifiers\OpVerificationProvider.cs" />
+    <Compile Include="Verifiers\SamlinkVerificationProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

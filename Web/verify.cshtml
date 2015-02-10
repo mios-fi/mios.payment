@@ -5,10 +5,16 @@
 
 @{
 	var account = String.IsNullOrEmpty(Request["account"]) ? null : Request["account"];
+	var contract = String.IsNullOrEmpty(Request["contract"]) ? null : Request["contract"];
 	var secret = String.IsNullOrEmpty(Request["secret"]) ? null : Request["secret"];
 	var providers = new Dictionary<string, IVerificationProvider> {
 		{"solo", new NordeaVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
 		{"op", new OpVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"aktia", new SamlinkVerificationProvider("version=10&keyVersion=0001&endpointUrl=https://ebank.aktia.fi/vmapitest/kysely&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"sp", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.saastopankki.fi/vm/kysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"pop", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"danske", new DanskeBankVerificationProvider("account="+account+"&secret="+secret+"&contract="+contract)},
 	};
 }
 
@@ -20,20 +26,24 @@
 		Provider
 		<select name="provider">
 			@foreach(var key in providers.Keys) {
-				<option>@key</option>
+				<option selected="@(Request.Form["provider"]==key?"selected":null)">@key</option>
 			}
 		</select>
 	</label><br />
 	<label>Account <input type="text" name="account" value="@account" /></label><br />
+	<label>Contract <input type="text" name="contract" value="@contract" /></label><br />
 	<label>Secret <input type="text" name="secret" value="@secret" /></label><br />
-	<label>Identifier <input type="text" name="identifier" /></label><br />
-	<label>Amount <input type="text" name="amount"/></label><br />
+	<label>Identifier <input type="text" name="identifier" value="@Request.Form["identifier"]"/></label><br />
+	<label>Amount <input type="text" name="amount" value="@Request.Form["amount"]"/></label><br />
 	<input type="submit" value="Verifiy" />
 </form>
 @{
 	if(Request.HttpMethod=="POST") {
 		if(Request.Form["account"]!=null) {
 			Response.Cookies.Add(new HttpCookie("account", Request.Form["account"]));
+		}
+		if(Request.Form["contract"]!=null) {
+			Response.Cookies.Add(new HttpCookie("contract", Request.Form["contract"]));
 		}
 		if(Request.Form["secret"]!=null) {
 			Response.Cookies.Add(new HttpCookie("secret", Request.Form["secret"]));
