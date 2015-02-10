@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 namespace Mios.Payment {
 	[Serializable]
 	public class VerificationProviderException : Exception {
+		public string ResponseContent {
+			get { return Data["Response"] as string; }
+			set { Data["Response"] = value; }
+		}
+
 		public VerificationProviderException() { }
 		public VerificationProviderException(string message) : base(message) { }
 		public VerificationProviderException(string message, Exception inner) : base(message, inner) { }
