@@ -48,7 +48,7 @@
 			decimal amount = 0;
 			decimal.TryParse(Request.Form["amount"], out amount);
 			try {
-				var task = Task.Run(() => provider.VerifyPayment(Request.Form["identifier"], amount)).Result;
+				var task = Task.Run(() => provider.VerifyPaymentAsync(Request.Form["identifier"], amount)).Result;
 				if(task) {
 					<p>Successful verification</p>
 				} else {

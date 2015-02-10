@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Mios.Payment {
 	public interface IVerificationProvider {
-		Task<bool> VerifyPayment(string identifier, decimal amount);
+		Task<bool> VerifyPaymentAsync(string identifier, decimal expectedAmount);
 	}
 }

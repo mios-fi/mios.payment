@@ -28,7 +28,7 @@ namespace Mios.Payment.Verifiers {
 			Secret = parameters["secret"];
 		}
 
-		public async Task<bool> VerifyPayment(string identifier, decimal amount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal amount) {
 
 			var data = new Dictionary<string,string>() {
 				{"action_id", "708"},
