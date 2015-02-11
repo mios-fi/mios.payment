@@ -29,7 +29,7 @@ namespace Mios.Payment.Verifiers {
 			Secret = parameters["secret"];
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal amount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
 			var data = new Dictionary<string, string> {
 				{"SOLOPMT_VERSION", "0001"},
 				{"SOLOPMT_TIMESTMP", DateTime.Now.ToString("yyyyMMddhhmmss0001", CultureInfo.InvariantCulture)},

@@ -31,7 +31,7 @@ namespace Mios.Payment.Verifiers {
 			}
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal expectedAmount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
 			if(String.IsNullOrEmpty(Account)) {
 				throw new InvalidOperationException("The Account property must be set before calling VerifyPaymentAsync.");
 			}
@@ -89,8 +89,8 @@ namespace Mios.Payment.Verifiers {
 			}
 
 			// Throw for unexpected amount in response
-			if(decimal.Parse(responseFields["Amount"], CultureInfo.InvariantCulture) != expectedAmount) { 
-				throw new VerificationProviderException("Expected amount "+expectedAmount.ToString("f2", CultureInfo.GetCultureInfo("fi-FI"))+" but found "+responseFields["Amount"]) {
+			if(expectedAmount.HasValue && decimal.Parse(responseFields["Amount"], CultureInfo.InvariantCulture) != expectedAmount.Value) { 
+				throw new VerificationProviderException("Expected amount "+expectedAmount.Value.ToString("f2", CultureInfo.GetCultureInfo("fi-FI"))+" but found "+responseFields["Amount"]) {
 					ResponseContent = responseContent
 				};
 			}

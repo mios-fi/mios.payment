@@ -38,7 +38,7 @@ namespace Mios.Payment.Verifiers {
 			}
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal expectedAmount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
 			if(String.IsNullOrEmpty(Account)) {
 				throw new InvalidOperationException("Account must be set before calling VerifyPaymentAsync.");
 			}
@@ -199,8 +199,8 @@ namespace Mios.Payment.Verifiers {
 				};
 			}
 			// Throw for unexpected amount in response
-			if(decimal.Parse(responseFields["NET_AMOUNT"],CultureInfo.InvariantCulture) != expectedAmount) {
-				throw new VerificationProviderException("Expected amount "+expectedAmount.ToString("f2", CultureInfo.GetCultureInfo("fi-FI"))+" but found "+responseFields["NET_AMOUNT"]) {
+			if(expectedAmount.HasValue && decimal.Parse(responseFields["NET_AMOUNT"],CultureInfo.InvariantCulture) != expectedAmount.Value) {
+				throw new VerificationProviderException("Expected amount "+expectedAmount.Value.ToString("f2", CultureInfo.GetCultureInfo("fi-FI"))+" but found "+responseFields["NET_AMOUNT"]) {
 					ResponseContent = responseContent,
 					Data = {
 						{ "Location", response.Headers.Location.ToString() }
