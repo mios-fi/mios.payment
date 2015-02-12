@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Globalization;
+using System.Threading;
 
 namespace Mios.Payment.Verifiers {
 	public class NordeaVerificationProvider : IVerificationProvider {
@@ -29,7 +30,7 @@ namespace Mios.Payment.Verifiers {
 			Secret = parameters["secret"];
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount, CancellationToken cancellationToken = default(CancellationToken)) {
 			var data = new Dictionary<string, string> {
 				{"SOLOPMT_VERSION", "0001"},
 				{"SOLOPMT_TIMESTMP", DateTime.Now.ToString("yyyyMMddhhmmss0001", CultureInfo.InvariantCulture)},
@@ -56,8 +57,9 @@ namespace Mios.Payment.Verifiers {
 
 			// Make request
 			var client = new HttpClient();
-			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data));
+			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data), cancellationToken);
 			response.EnsureSuccessStatusCode();
+			cancellationToken.ThrowIfCancellationRequested();
 			var responseContent = await response.Content.ReadAsStringAsync();
 			if(responseContent.Contains("<SOLOPMT_RESPCODE>OK</SOLOPMT_RESPCODE>")) {
 				return true;

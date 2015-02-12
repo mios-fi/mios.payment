@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -38,7 +39,7 @@ namespace Mios.Payment.Verifiers {
 			}
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount, CancellationToken cancellationToken = default(CancellationToken)) {
 			if(String.IsNullOrEmpty(Account)) {
 				throw new InvalidOperationException("Account must be set before calling VerifyPaymentAsync.");
 			}
@@ -97,7 +98,7 @@ namespace Mios.Payment.Verifiers {
 
 			// Make request
 			var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false });
-			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data));
+			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data), cancellationToken);
 			if(response.StatusCode!=HttpStatusCode.Found) {
 				throw new VerificationProviderException("Expected 302 FOUND in Samlink response but found "+response.StatusCode+".") {
 					Data = {
@@ -108,6 +109,7 @@ namespace Mios.Payment.Verifiers {
 
 			// Parse location header with response
 			var responseFields = HttpUtility.ParseQueryString(response.Headers.Location.Query);
+			cancellationToken.ThrowIfCancellationRequested();
 			var responseContent = await response.Content.ReadAsStringAsync();
 
 			// Throw for unknown response code

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -28,7 +29,7 @@ namespace Mios.Payment.Verifiers {
 			Secret = parameters["secret"];
 		}
 
-		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount) {
+		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount, CancellationToken cancellationToken = default(CancellationToken)) {
 
 			var data = new Dictionary<string,string>() {
 				{"action_id", "708"},
@@ -54,8 +55,9 @@ namespace Mios.Payment.Verifiers {
 
 			// Make request
 			var client = new HttpClient();
-			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data));
+			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(data), cancellationToken);
 			response.EnsureSuccessStatusCode();
+			cancellationToken.ThrowIfCancellationRequested();
 			var responseContent = await response.Content.ReadAsStringAsync();
 
 			if(responseContent.Contains("Maksua ei ole maksettu")) {
