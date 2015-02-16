@@ -8,28 +8,32 @@ using System.Threading.Tasks;
 using System.Web;
 
 namespace Mios.Payment.Verifiers {
-	public class OpVerificationProvider : IVerificationProvider {
+	public class OsuuspankkiVerificationProvider : IVerificationProvider {
 
 		public string Account { get; set; }
 		public string Secret { get; set; }
 		public Uri EndpointUrl { get; set; }
 
-		public OpVerificationProvider() {
+		public OsuuspankkiVerificationProvider() {
 			EndpointUrl = new Uri("https://kultaraha.op.fi/cgi-bin/krcgi");
 		}
-		public OpVerificationProvider(string data) : this() {
+		public OsuuspankkiVerificationProvider(string data) : this() {
 			var parameters = HttpUtility.ParseQueryString(data);
-			if(parameters["account"]==null) {
-				throw new ArgumentException("Missing 'account' parameter in initialization string.");
-			}
-			if(parameters["secret"]==null) {
-				throw new ArgumentException("Missing 'secret' parameter in initialization string.");
-			}
 			Account = parameters["account"];
 			Secret = parameters["secret"];
+			Uri endpointUrl;
+			if(Uri.TryCreate(parameters["endpointUrl"], UriKind.Absolute, out endpointUrl)) {
+				EndpointUrl = endpointUrl;
+			}
 		}
 
 		public async Task<bool> VerifyPaymentAsync(string identifier, decimal? expectedAmount, CancellationToken cancellationToken = default(CancellationToken)) {
+			if(String.IsNullOrEmpty(Account)) {
+				throw new InvalidOperationException("The Account property must be set before calling VerifyPaymentAsync");
+			}
+			if(String.IsNullOrEmpty(Secret)) {
+				throw new InvalidOperationException("The Secret property must be set before calling VerifyPaymentAsync");
+			}
 
 			var data = new Dictionary<string,string>() {
 				{"action_id", "708"},
@@ -67,9 +71,7 @@ namespace Mios.Payment.Verifiers {
 				return true;
 			}
 			throw new VerificationProviderException("OP verification service returned unknown response.") {
-				Data = {
-					{"Response", responseContent}
-				}
+				ResponseContent = responseContent
 			};
 		}
 	}

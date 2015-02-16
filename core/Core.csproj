@@ -77,7 +77,7 @@
     <Compile Include="VerificationProviderException.cs" />
     <Compile Include="Verifiers\DanskeBankVerificationProvider.cs" />
     <Compile Include="Verifiers\NordeaVerificationProvider.cs" />
-    <Compile Include="Verifiers\OpVerificationProvider.cs" />
+    <Compile Include="Verifiers\OsuuspankkiVerificationProvider.cs" />
     <Compile Include="Verifiers\SamlinkVerificationProvider.cs" />
   </ItemGroup>
   <ItemGroup>
