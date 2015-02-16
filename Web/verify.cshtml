@@ -15,6 +15,7 @@
 		{"pop", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
 		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
 		{"danske", new DanskeBankVerificationProvider("account="+account+"&secret="+secret+"&contract="+contract)},
+		{"assist", new AssistVerificationProvider("account="+contract+"&password="+secret+"&user="+account)},
 	};
 }
 
