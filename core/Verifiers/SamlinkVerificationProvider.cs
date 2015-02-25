@@ -23,7 +23,7 @@ namespace Mios.Payment.Verifiers {
 			Version = 1;
 			Currency = "EUR";
 		}
-		public SamlinkVerificationProvider(string data) {
+		public SamlinkVerificationProvider(string data) : this() {
 			var parameters = HttpUtility.ParseQueryString(data);
 			Account = parameters["account"];
 			Secret = parameters["secret"];
