@@ -38,6 +38,9 @@ namespace Mios.Payment.Verifiers {
 			if(String.IsNullOrEmpty(Password)) {
 				throw new InvalidOperationException("The Password property must be set before calling VerifyPaymentAsync");
 			}
+
+			var rangeEnd = DateTime.Now.AddDays(1);
+			var rangeStart = rangeEnd.AddDays(-7);
 			
 			var data = new Dictionary<string, string> {
 				{"ShopOrderNumber", identifier },// ReferenceCalculator.GenerateReferenceNumber(identifier)},
@@ -45,7 +48,17 @@ namespace Mios.Payment.Verifiers {
 				{"Login", User},
 				{"Password", Password},
 				{"Format", "1"},
-				{"English", "1"}
+				{"English", "1"},
+				{"StartYear", rangeStart.Year.ToString() },
+				{"StartMonth", rangeStart.Month.ToString() },
+				{"StartDay", rangeStart.Day.ToString() },
+				{"StartHour", "0"},
+				{"StartMin", "0"},
+				{"EndYear", rangeEnd.Year.ToString() },
+				{"EndMonth", rangeEnd.Month.ToString() },
+				{"EndDay", rangeEnd.Day.ToString() },
+				{"EndHour", "0"},
+				{"EndMin", "0"}
 			};
 
 			// Make request
