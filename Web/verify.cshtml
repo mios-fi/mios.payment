@@ -8,12 +8,12 @@
 	var contract = String.IsNullOrEmpty(Request["contract"]) ? null : Request["contract"];
 	var secret = String.IsNullOrEmpty(Request["secret"]) ? null : Request["secret"];
 	var providers = new Dictionary<string, IVerificationProvider> {
-		{"solo", new NordeaVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
-		{"op", new OsuuspankkiVerificationProvider("account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
-		{"aktia", new SamlinkVerificationProvider("version=10&keyVersion=0001&endpointUrl=https://ebank.aktia.fi/vmapitest/kysely&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
-		{"sp", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.saastopankki.fi/vm/kysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
-		{"pop", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
-		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+(account ?? "12345678")+"&secret="+(secret ?? "LEHTI"))},
+		{"solo", new NordeaVerificationProvider("account="+account+"&secret="+secret)},
+		{"op", new OsuuspankkiVerificationProvider("account="+account+"&secret="+secret)},
+		{"aktia", new SamlinkVerificationProvider("version=10&keyVersion=0001&endpointUrl=https://ebank.aktia.fi/vmapitest/kysely&account="+account+"&secret="+secret)},
+		{"sp", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.saastopankki.fi/vm/kysely.html&account="+account+"&secret="+secret)},
+		{"pop", new SamlinkVerificationProvider("endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+account+"&secret="+secret) { Version = 3 }},
+		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+account+"&secret="+secret)},
 		{"danske", new DanskeBankVerificationProvider("account="+account+"&secret="+secret+"&contract="+contract)},
 		{"assist", new AssistVerificationProvider("account="+contract+"&password="+secret+"&user="+account)},
 	};
