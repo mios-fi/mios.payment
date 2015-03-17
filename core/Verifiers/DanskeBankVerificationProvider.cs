@@ -91,7 +91,7 @@ namespace Mios.Payment.Verifiers {
 			}
 
 			// Throw for unexpected amount in response
-			if(expectedAmount.HasValue && decimal.Parse(responseFields["Amount"], CultureInfo.InvariantCulture) != expectedAmount.Value) { 
+			if(expectedAmount.HasValue && decimal.Parse(responseFields["Amount"], CultureInfo.CreateSpecificCulture("fi-fi")) != expectedAmount.Value) { 
 				throw new VerificationProviderException("Expected amount "+expectedAmount.Value.ToString("f2", CultureInfo.GetCultureInfo("fi-FI"))+" but found "+responseFields["Amount"]) {
 					ResponseContent = responseContent
 				};
