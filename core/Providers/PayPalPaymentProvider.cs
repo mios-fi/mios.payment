@@ -16,10 +16,9 @@ namespace Mios.Payment.Providers {
 		public string Secret { get; set; }
 		public string Signature { get; set; }
 		public string Currency { get; set; }
-		public Uri EndpointUrl { get; set; }
+		public bool Sandbox { get; set; }
 
 		public PayPalPaymentProvider() {
-			EndpointUrl = new Uri("https://api-3t.sandbox.paypal.com/nvp");
 			Currency = "EUR";
 		}
 
@@ -39,7 +38,7 @@ namespace Mios.Payment.Providers {
 			}
 
 			return new PaymentDetails {
-				Url = "https://www.sandbox.paypal.com/cgi/bin/webscr",
+				Url = "https://www"+(Sandbox?".sandbox":"")+".paypal.com/cgi/bin/webscr",
 				Fields = new NameValueCollection { 
 					{"cmd", "_express-checkout"},
 					{"token", response["TOKEN"]}
@@ -77,7 +76,8 @@ namespace Mios.Payment.Providers {
 			fields["SIGNATURE"] = Signature;
 			fields["VERSION"] = "93";
 			var client = new HttpClient();
-			var response = await client.PostAsync(EndpointUrl, new FormUrlEncodedContent(fields));
+			var endpointUrl = new Uri("https://api-3t"+(Sandbox?".sandbox":"")+".paypal.com/nvp"); 
+			var response = await client.PostAsync(endpointUrl, new FormUrlEncodedContent(fields));
 			response.EnsureSuccessStatusCode();
 			var responseString = await response.Content.ReadAsStringAsync();
 			return HttpUtility.ParseQueryString(responseString);
