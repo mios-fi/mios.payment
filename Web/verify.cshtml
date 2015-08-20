@@ -15,6 +15,9 @@
 		{"pop", new SamlinkVerificationProvider("endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+account+"&secret="+secret) { Version = 3 }},
 		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+account+"&secret="+secret)},
 		{"danske", new DanskeBankVerificationProvider("account="+account+"&secret="+secret+"&contract="+contract)},
+		{"spankki", new CrosskeyVerificationProvider { Account = account, Secret = secret, Currency = "EUR", EndpointUrl = new Uri("https://online.s-pankki.fi/service/paymentquery") }},
+		{"aab", new CrosskeyVerificationProvider { Account = account, Secret = secret, Currency = "EUR", EndpointUrl = new Uri("https://online.alandsbanken.fi/service/paymentquery") }},
+		{"tapiola", new CrosskeyVerificationProvider { Account = account, Secret = secret, Currency = "EUR", EndpointUrl = new Uri("https://pankki.tapiola.fi/service/paymentquery") }},
 		{"assist", new AssistVerificationProvider("account="+contract+"&password="+secret+"&user="+account)},
 	};
 }
