@@ -17,9 +17,13 @@ namespace Mios.Payment.Providers {
 		public string Account { get; set; }
 		public string Secret { get; set; }
 		public string Url { get; set; }
+		public string Country { get; set; }
+		public string Locale { get; set; }
 
 		public MaksekeskusPaymentProvider() {
 			Url = "https://payment.maksekeskus.ee/pay/1/signed.html";
+			Country = "ee";
+			Locale = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 		}
 		public MaksekeskusPaymentProvider(string parameterString)
 			: this() {
@@ -36,16 +40,17 @@ namespace Mios.Payment.Providers {
 		}
 
 		public PaymentDetails GenerateDetails(string identifier, decimal amount, string returnUrl, string errorUrl, string message) {
-			var details = new Dictionary<string, string> {
-				{"shopId", Account},
-				{"paymentId", identifier},
-				{"amount", amount.ToString("F2", CultureInfo.InvariantCulture)},
-			};
-			details["signature"] = (details["shopId"]+details["paymentId"]+details["amount"]+Secret).Hash("SHA512").ToUpperInvariant();
+			var json = JsonConvert.SerializeObject(new {
+				shop = Account,
+				amount = amount.ToString("F2", CultureInfo.InvariantCulture),
+				reference = identifier,
+				locale = Locale,
+				country = Country
+			});
 			return new PaymentDetails {
 				Url = Url, Fields = new NameValueCollection {
-					{"json", JsonConvert.SerializeObject(details)},
-					{"locale", CultureInfo.CurrentCulture.TwoLetterISOLanguageName }
+					{"json", json },
+					{"mac", (json+Secret).Hash("SHA512").ToUpperInvariant() }
 				}
 			};
 		}

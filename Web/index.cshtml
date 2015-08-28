@@ -9,6 +9,7 @@
 	var signature = String.IsNullOrEmpty(Request["signature"]) ? "123456" : Request["signature"];
 	var providers = new Dictionary<string, IPaymentProvider> { 
 		{"maksekeskus", new MaksekeskusPaymentProvider("account="+account+"&secret="+secret+"&url=https://payment.maksekeskus.ee/pay/1/test/signed.html")},
+		{"maksekes-lv", new MaksekeskusPaymentProvider("account="+account+"&secret="+secret+"&url=https://payment.maksekeskus.ee/pay/1/test/signed.html") { Country = "lv" } },
 		{"assist",      new AssistPaymentProvider("account="+account+"&testMode=true")},
 		{"dibs",        new DibsPaymentProvider("account="+account+"&secret="+dibsSecret) { TestMode = true, PaymentTypes = "ALL_CARDS,ALL_NETBANKS" }},
 		{"solo",        new NordeaPaymentProvider("account=12345678&secret=LEHTI")},
