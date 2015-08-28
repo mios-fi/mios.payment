@@ -10,10 +10,10 @@ using Xunit;
 using Newtonsoft.Json;
 
 namespace Tests.Providers {
-	public class MaksekeskusPaymentProviderTests {
+	public class MaksekeskusPaymentVerifierTests {
 		private MaksekeskusPaymentProvider provider;
 		private MaksekeskusPaymentProvider.ReturnModel details;
-		public MaksekeskusPaymentProviderTests() {
+		public MaksekeskusPaymentVerifierTests() {
 			provider = new MaksekeskusPaymentProvider("account=xyz&secret=1234567890");
 			details = new MaksekeskusPaymentProvider.ReturnModel {
 				shopId = "xyz", paymentId = "123456", amount = "12.25", status = "PAID",

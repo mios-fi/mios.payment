@@ -9,12 +9,12 @@ using Mios.Payment;
 using Xunit;
 
 namespace Tests.Providers {
-	public class DibsPaymentProviderTests {
+	public class DibsPaymentVerifierTests {
 		private DibsPaymentProvider provider;
 		private NameValueCollection details;
 		private string secret = "1234567890abcdef";
 
-		public DibsPaymentProviderTests() { 
+		public DibsPaymentVerifierTests() { 
 			this.provider = new DibsPaymentProvider() { Secret = secret, Currency = "EUR", MerchantId = "12345678" };
 			this.details = new NameValueCollection {
 				{"acceptReturnUrl","http://localhost:50075/"},

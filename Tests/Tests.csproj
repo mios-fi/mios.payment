@@ -55,10 +55,10 @@
     <Compile Include="HMACSHATest.cs" />
     <Compile Include="ProcessPEMsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Providers\DibsPaymentProviderTests.cs" />
-    <Compile Include="Providers\HandelsbankenPaymentProviderTests.cs" />
-    <Compile Include="Providers\MaksekeskusPaymentProviderTests.cs" />
-    <Compile Include="Providers\SwedbankPaymentProviderTests.cs" />
+    <Compile Include="Verifiers\DibsPaymentVerifierTests.cs" />
+    <Compile Include="Verifiers\HandelsbankenPaymentVerifierTests.cs" />
+    <Compile Include="Verifiers\MaksekeskusPaymentVerifierTests.cs" />
+    <Compile Include="Verifiers\SwedbankPaymentVerifierTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\core\Core.csproj">

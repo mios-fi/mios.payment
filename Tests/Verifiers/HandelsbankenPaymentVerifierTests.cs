@@ -8,7 +8,7 @@ using Mios.Payment.Providers;
 using Xunit;
 
 namespace Tests.Providers {
-	public class HandelsbankenPaymentProviderTests {
+	public class HandelsbankenPaymentVerifierTests {
 		private static readonly NameValueCollection positiveTestVector 
 			= new NameValueCollection { 
 				{"butikid", "9999"},

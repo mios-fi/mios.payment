@@ -9,15 +9,15 @@ using Mios.Payment.Providers;
 using Xunit;
 
 namespace Tests.Providers {
-	public class SwedbankPaymentProviderTests {
+	public class SwedbankPaymentVerifierTests {
 		private SwedbankPaymentProvider provider;
 		private NameValueCollection successfulReturnValues;
-		public SwedbankPaymentProviderTests() {
+		public SwedbankPaymentVerifierTests() {
 			string privateKey, bankCertificate;
-			using(var reader = new StreamReader(typeof(SwedbankPaymentProviderTests).Assembly.GetManifestResourceStream("Tests.Resources.kaupmees_priv.pem"))) {
+			using(var reader = new StreamReader(typeof(SwedbankPaymentVerifierTests).Assembly.GetManifestResourceStream("Tests.Resources.kaupmees_priv.pem"))) {
 				privateKey = Uri.EscapeDataString(reader.ReadToEnd());
 			}
-			using(var reader = new StreamReader(typeof(SwedbankPaymentProviderTests).Assembly.GetManifestResourceStream("Tests.Resources.eyp_cert.pem"))) {
+			using(var reader = new StreamReader(typeof(SwedbankPaymentVerifierTests).Assembly.GetManifestResourceStream("Tests.Resources.eyp_cert.pem"))) {
 				bankCertificate = Uri.EscapeDataString(reader.ReadToEnd());
 			}
 			var url = Uri.EscapeDataString("https://www.seb.ee/cgi-bin/dv.sh/un3min.r");
