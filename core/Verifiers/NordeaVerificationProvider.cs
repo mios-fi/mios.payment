@@ -16,7 +16,7 @@ namespace Mios.Payment.Verifiers {
 		public Uri EndpointUrl { get; set; }
 
 		public NordeaVerificationProvider() {
-			EndpointUrl = new Uri("https://solo3.nordea.fi/cgi-bin/SOLOPM10");
+			EndpointUrl = new Uri("https://epmt.nordea.fi/cgi-bin/SOLOPM10");
 		}
 		public NordeaVerificationProvider(string data) : this() {
 			var parameters = HttpUtility.ParseQueryString(data);

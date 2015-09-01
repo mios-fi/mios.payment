@@ -12,7 +12,7 @@ namespace Mios.Payment.Providers {
 		public string Secret { get; set; }
 		public string Url { get; set; }
 		public NordeaPaymentProvider() {
-			Url = "https://solo3.nordea.fi/cgi-bin/SOLOPM01";
+			Url = "https://epmt.nordea.fi/cgi-bin/SOLOPM01";
 		}
 		public NordeaPaymentProvider(string parameterString)
 			: this() {
