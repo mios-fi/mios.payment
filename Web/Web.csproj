@@ -92,6 +92,7 @@
     <Content Include="index.cshtml" />
     <Content Include="verify.cshtml" />
     <Content Include="packages.config" />
+    <Content Include="stripe.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

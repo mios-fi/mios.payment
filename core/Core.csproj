@@ -71,6 +71,7 @@
     <Compile Include="Providers\OsuuspankkiPaymentProvider.cs" />
     <Compile Include="PaymentDetails.cs" />
     <Compile Include="Providers\PayPalPaymentProvider.cs" />
+    <Compile Include="Providers\StripePaymentProvider.cs" />
     <Compile Include="Providers\SwedbankPaymentProvider.cs" />
     <Compile Include="StringHashingExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
