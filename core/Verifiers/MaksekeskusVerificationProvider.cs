@@ -17,7 +17,8 @@ using NLog;
 namespace Mios.Payment.Verifiers {
 	public class MaksekeskusVerificationProvider : IVerificationProvider {
 		static readonly Logger Log = LogManager.GetCurrentClassLogger();
-		static readonly string CacheKey = typeof(MaksekeskusVerificationProvider).Name+".Transactions";
+		readonly string cacheKey;
+		readonly SemaphoreSlim cacheLock = new SemaphoreSlim(1);
 		public Uri EndpointUri { get; set; }
 		public string Currency { get; set; }
 		public string Account { get; set; }
@@ -26,6 +27,7 @@ namespace Mios.Payment.Verifiers {
 		public TimeSpan Horizon { get; set; }
 
 		public MaksekeskusVerificationProvider() {
+			cacheKey = typeof(MaksekeskusVerificationProvider).Name+"_"+GetHashCode().ToString()+".Transactions";
 			EndpointUri = new Uri("https://api.maksekeskus.ee/v1/");
 			Currency = "EUR";
 			CacheDuration = TimeSpan.FromMinutes(10);
@@ -37,7 +39,7 @@ namespace Mios.Payment.Verifiers {
 			if(Secret==null)
 				throw new InvalidOperationException("SecretKey property must be set before verifying payments.");
 
-			var transactions = await GetTransactions(cancellationToken);
+			var transactions = await GetCachedTransactions(cancellationToken);
 			Transaction transaction = null;
 			if(!transactions.TryGetValue(identifier, out transaction)) {
 				Log.Debug("Transaction {0} not found in transaction list.", identifier);
@@ -58,14 +60,34 @@ namespace Mios.Payment.Verifiers {
 			return true;
 		}
 
-		private async Task<IDictionary<string, Transaction>> GetTransactions(CancellationToken cancellationToken) {
-			var transactions = MemoryCache.Default.Get(CacheKey) as IDictionary<string,Transaction>;
+		private async Task<IDictionary<string, Transaction>> GetCachedTransactions(CancellationToken cancellationToken) {
+			var transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string,Transaction>;
 			if(transactions!=null) {
-				Log.Trace("Retrieved {0} transactions from cache.", transactions.Count);
+				Log.Trace("Retrieved {0} transactions from cache for shop {1}.", transactions.Count, Account);
 				return transactions;
 			}
 
-			// Make request
+			await cacheLock.WaitAsync();
+			try {
+				// Try the cache again, maybe someone filled it while we were waiting for the lock
+				transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string, Transaction>;
+				if(transactions!=null)
+					return transactions;
+
+				// Download transaction list
+				transactions = await GetTransactions(cancellationToken);
+				MemoryCache.Default.Add(cacheKey, transactions, new CacheItemPolicy {
+					AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(20)
+				});
+			} finally {
+				cacheLock.Release();
+			}
+
+			return transactions;
+		}
+
+		private async Task<IDictionary<string,Transaction>> GetTransactions(CancellationToken cancellationToken) {
+			var transactions = new Dictionary<string, Transaction>();
 			var today = DateTimeOffset.Now.Date.Add(Horizon);
 			var client = new HttpClient(new WebRequestHandler {
 				CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.CacheIfAvailable)
@@ -77,8 +99,7 @@ namespace Mios.Payment.Verifiers {
 			var until = DateTimeOffset.Now.AddDays(1);
 			var requestUri = new Uri(EndpointUri, "transactions?since="+Uri.EscapeDataString(since.ToString("yyyy-MM-dd"))+"&until="+Uri.EscapeDataString(until.ToString("yyyy-MM-dd")));
 			try {
-				Log.Info("Requesting fresh transactions starting from {0} until {1} from Maksekeskus.", since, until);
-				transactions = new Dictionary<string,Transaction>();
+				Log.Info("Requesting fresh transactions starting from {0} until {1} from Maksekeskus for shop {2}.", since, until, Account);
 				while(true) {
 					var response = await client.GetAsync(requestUri);
 					response.EnsureSuccessStatusCode();
@@ -87,12 +108,13 @@ namespace Mios.Payment.Verifiers {
 					// Parse response
 					var responseString = await response.Content.ReadAsStringAsync();
 					var transactionList = JsonConvert.DeserializeObject<IList<Transaction>>(responseString);
-					Log.Info("Retrieved {0} transactions from Makeskeskus, first on {1}, last on {2}.", 
-						transactionList.Count, 
-						transactionList.Min(t => t.Created_At), 
+					Log.Info("Retrieved {0} transactions from Makeskeskus for shop {1}, first on {2}, last on {3}.",
+						transactionList.Count,
+						Account,
+						transactionList.Min(t => t.Created_At),
 						transactionList.Max(t => t.Created_At)
 					);
-					foreach(var transaction in transactionList){
+					foreach(var transaction in transactionList) {
 						transactions[transaction.Reference] = transaction;
 					}
 
@@ -100,11 +122,8 @@ namespace Mios.Payment.Verifiers {
 					if(requestUri==null) break;
 				}
 			} catch(HttpRequestException e) {
-				Log.ErrorException("Exception while requesting transactions from Maksekeskus.", e);
+				Log.ErrorException("Exception while requesting transactions from Maksekeskus for shop "+Account+".", e);
 			}
-			MemoryCache.Default.Add(CacheKey, transactions, new CacheItemPolicy {
-				AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(20)
-			});
 			return transactions;
 		}
 
