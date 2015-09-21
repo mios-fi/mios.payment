@@ -39,29 +39,34 @@ namespace Mios.Payment.Verifiers {
 			if(Secret==null)
 				throw new InvalidOperationException("SecretKey property must be set before verifying payments.");
 
-			var transactions = await GetCachedTransactions(cancellationToken);
-			Transaction transaction = null;
-			if(!transactions.TryGetValue(identifier, out transaction)) {
-				Log.Debug("Transaction {0} not found in transaction list.", identifier);
+			var allTransactions = await GetCachedTransactions(cancellationToken);
+			IList<Transaction> transactions = null;
+			if(!allTransactions.TryGetValue(identifier, out transactions)) {
+				Log.Debug("No payments for reference {0} found in transaction list.", identifier);
 				return false;
 			}
-			if("COMPLETED".Equals(transaction.Status, StringComparison.OrdinalIgnoreCase)==false) {
-				Log.Debug("Expected status COMPLETED but found {0} on transaction {1}.", transaction.Status, identifier);
-				return false;
+			foreach(var transaction in transactions) {
+				if("COMPLETED".Equals(transaction.Status, StringComparison.OrdinalIgnoreCase)==false) {
+					Log.Debug("Expected status COMPLETED but found {0} in transaction {1} on reference {2}.", transaction.Status, transaction.Id, identifier);
+					continue;
+				}
+				if(!Currency.Equals(transaction.Currency, StringComparison.OrdinalIgnoreCase)) {
+					Log.Debug("Expected currency {0} but found {1} in transaction {2} on reference {3}.", Currency, transaction.Currency, transaction.Id, identifier);
+					continue;
+				}
+				if(expectedAmount.HasValue && transaction.Amount!=expectedAmount.Value) {
+					Log.Debug("Expected amount {0} but found {1} paid in transaction {2} on reference {3}.", expectedAmount, transaction.Amount, transaction.Id, identifier);
+					continue;
+				}
+				Log.Info("Found matching transaction {0} for reference {1}.", transaction.Id, identifier);
+				return true;
 			}
-			if(!Currency.Equals(transaction.Currency, StringComparison.OrdinalIgnoreCase)) {
-				Log.Debug("Expected currency {0} but found {1} on transaction {2}.", Currency, transaction.Currency, identifier);
-				return false;
-			}
-			if(expectedAmount.HasValue && transaction.Amount!=expectedAmount.Value) {
-				Log.Debug("Expected amount {0} but found {1} paid in transaction {2}.", expectedAmount, transaction.Amount, identifier);
-				return false;
-			}
-			return true;
+			Log.Debug("Unable to find matching transaction for reference {0}.", identifier);
+			return false;
 		}
 
-		private async Task<IDictionary<string, Transaction>> GetCachedTransactions(CancellationToken cancellationToken) {
-			var transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string,Transaction>;
+		private async Task<IDictionary<string, IList<Transaction>>> GetCachedTransactions(CancellationToken cancellationToken) {
+			var transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string,IList<Transaction>>;
 			if(transactions!=null) {
 				Log.Trace("Retrieved {0} transactions from cache for shop {1}.", transactions.Count, Account);
 				return transactions;
@@ -70,7 +75,7 @@ namespace Mios.Payment.Verifiers {
 			await cacheLock.WaitAsync();
 			try {
 				// Try the cache again, maybe someone filled it while we were waiting for the lock
-				transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string, Transaction>;
+				transactions = MemoryCache.Default.Get(cacheKey) as IDictionary<string, IList<Transaction>>;
 				if(transactions!=null)
 					return transactions;
 
@@ -86,8 +91,8 @@ namespace Mios.Payment.Verifiers {
 			return transactions;
 		}
 
-		private async Task<IDictionary<string,Transaction>> GetTransactions(CancellationToken cancellationToken) {
-			var transactions = new Dictionary<string, Transaction>();
+		private async Task<IDictionary<string,IList<Transaction>>> GetTransactions(CancellationToken cancellationToken) {
+			var transactions = new Dictionary<string, IList<Transaction>>();
 			var today = DateTimeOffset.Now.Date.Add(Horizon);
 			var client = new HttpClient(new WebRequestHandler {
 				CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.CacheIfAvailable)
@@ -114,8 +119,14 @@ namespace Mios.Payment.Verifiers {
 						transactionList.Min(t => t.Created_At),
 						transactionList.Max(t => t.Created_At)
 					);
+					IList<Transaction> transactionsForReference;
 					foreach(var transaction in transactionList) {
-						transactions[transaction.Reference] = transaction;
+						// If the existing transaction is 
+						if(transactions.TryGetValue(transaction.Reference, out transactionsForReference)) {
+							transactionsForReference.Add(transaction);
+						} else {
+							transactions[transaction.Reference] = new List<Transaction> { transaction };
+						}
 					}
 
 					requestUri = NextPageUriFromHeaders(response.Headers);
@@ -141,6 +152,7 @@ namespace Mios.Payment.Verifiers {
 		private Regex NextLinkPattern = new Regex(@"<([^>]+)>;\s+rel=""next""");
 
 		class Transaction {
+			public string Id { get; set; }
 			public DateTime Created_At { get; set; }
 			public DateTime Completed_At { get; set; }
 			public string Status { get; set; }
@@ -148,6 +160,5 @@ namespace Mios.Payment.Verifiers {
 			public string Currency { get; set; }
 			public string Reference { get; set; }
 		}
-
 	}
 }
