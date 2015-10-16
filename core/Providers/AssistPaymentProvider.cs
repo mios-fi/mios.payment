@@ -29,7 +29,7 @@ namespace Mios.Payment.Providers {
 		public AssistPaymentProvider() {
 			Url = "https://payments148.paysecure.ru/pay/order.cfm";
 			Currency = "RUR";
-			Providers = new string[0];
+			Providers = new List<string>();
 		}
 
 		public AssistPaymentProvider(string parameterString)
