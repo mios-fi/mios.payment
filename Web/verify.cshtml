@@ -10,10 +10,10 @@
 	var providers = new Dictionary<string, IVerificationProvider> {
 		{"solo", new NordeaVerificationProvider("account="+account+"&secret="+secret)},
 		{"op", new OsuuspankkiVerificationProvider("account="+account+"&secret="+secret)},
-		{"aktia", new SamlinkVerificationProvider("version=10&keyVersion=0001&endpointUrl=https://ebank.aktia.fi/vmapitest/kysely&account="+account+"&secret="+secret)},
-		{"sp", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.saastopankki.fi/vm/kysely.html&account="+account+"&secret="+secret)},
+		{"aktia", new SamlinkVerificationProvider("endpointUrl=https://ebank.aktia.fi/vmapi/kysely&account="+account+"&secret="+secret) { Version = 10, KeyVersion = "0001" } },
+		{"sp", new SamlinkVerificationProvider("endpointUrl=https://verkkomaksu.saastopankki.fi/vm/kysely.html&account="+account+"&secret="+secret) { Version = 3 } },
 		{"pop", new SamlinkVerificationProvider("endpointUrl=https://verkkomaksu.poppankki.fi/vm/kysely.html&account="+account+"&secret="+secret) { Version = 3 }},
-		{"hb", new SamlinkVerificationProvider("version=3&endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+account+"&secret="+secret)},
+		{"hb", new SamlinkVerificationProvider("endpointUrl=https://verkkomaksu.inetpankki.samlink.fi/vm/SHBkysely.html&account="+account+"&secret="+secret) { Version = 3 } },
 		{"danske", new DanskeBankVerificationProvider("account="+account+"&secret="+secret+"&contract="+contract)},
 		{"spankki", new CrosskeyVerificationProvider { Account = account, Secret = secret, Currency = "EUR", EndpointUrl = new Uri("https://online.s-pankki.fi/service/paymentquery") }},
 		{"aab", new CrosskeyVerificationProvider { Account = account, Secret = secret, Currency = "EUR", EndpointUrl = new Uri("https://online.alandsbanken.fi/service/paymentquery") }},
