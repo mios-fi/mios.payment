@@ -21,9 +21,7 @@ namespace Mios.Payment.Providers {
 			"QIWI", 
 			"QIWIMts", 
 			"QIWIMegafon", 
-			"QIWIBeeline", 
-			"AssistId", 
-			"Giftery" 
+			"QIWIBeeline"
 		};
 
 		public AssistPaymentProvider() {
