@@ -61,12 +61,12 @@ namespace Mios.Payment.Verifiers {
 			if(responseContent.Contains("<CBS_RESPCODE>OK</CBS_RESPCODE>")) {
 				return true;
 			}
-			if(responseContent.Contains("<CBS_RESPCODE>Notfound</CBS_RESPCODE>")) {
+			if(responseContent.Contains("<CBS_RESPCODE>NotFound</CBS_RESPCODE>")) {
 				return false;
 			}
 			throw new VerificationProviderException("Crosskey verification service returned unknown response.") {
 				Data = {
-					{"Response", responseContent} 
+					{"Response", responseContent}
 				}
 			};
 		}
