@@ -14,9 +14,11 @@ namespace Mios.Payment.Verifiers {
 		public string User { get; set; }
 		public string Password { get; set; }
 		public Uri EndpointUrl { get; set; }
+		public TimeSpan Horizon { get; set; }
 
 		public AssistVerificationProvider() {
 			EndpointUrl = new Uri("https://payments.paysecure.ru/results/results.cfm");
+			Horizon = TimeSpan.FromDays(-30);
 		}
 		public AssistVerificationProvider(string data) : this() {
 			var parameters = HttpUtility.ParseQueryString(data);
@@ -40,7 +42,7 @@ namespace Mios.Payment.Verifiers {
 			}
 
 			var rangeEnd = DateTime.Now.AddDays(1);
-			var rangeStart = rangeEnd.AddDays(-7);
+			var rangeStart = rangeEnd.Add(Horizon);
 			
 			var data = new Dictionary<string, string> {
 				{"ShopOrderNumber", identifier },// ReferenceCalculator.GenerateReferenceNumber(identifier)},
