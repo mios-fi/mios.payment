@@ -14,8 +14,10 @@ namespace Mios.Payment.Providers {
 		public string Secret { get; set; }
 		public string Url { get; set; }
 		public string ReceiverName { get; set; }
+		public string HashAlgorithm { get; set; }
 
 		public CrosskeyPaymentProvider(string parameterString) {
+			HashAlgorithm = "SHA256";
 			var parameters = HttpUtility.ParseQueryString(parameterString);
 			if(String.IsNullOrEmpty(parameters["account"]))
 				throw new InvalidOperationException("A merchant account must be assigned before generating details");
@@ -47,12 +49,15 @@ namespace Mios.Payment.Providers {
 			fields["AAB_DATE"] = "EXPRESS";
 			fields["AAB_RETURN"] = returnUrl;
 			fields["AAB_CANCEL"] = errorUrl;
-			fields["AAB_ERROR"] = errorUrl;
+			fields["AAB_REJECT"] = errorUrl;
 			fields["AAB_CONFIRM"] = "YES";
 			fields["AAB_KEYVERS"] = "0001";
 			fields["AAB_CUR"] = "EUR";
 			fields["AAB_LANGUAGE"] = CultureInfo.CurrentCulture.Name.StartsWith("sv") ? "2" : "1";
 			fields["BV_UseBVCookie"] = "NO";
+			if(HashAlgorithm=="SHA256") {
+				fields["AAB_ALG"] = "03";
+			}
 			fields["AAB_MAC"] =
 				String.Format("{0}&{1}&{2}&{3}&{4}&{5}&{6}&{7}&",
 					fields["AAB_VERSION"],
@@ -62,7 +67,7 @@ namespace Mios.Payment.Providers {
 					fields["AAB_REF"],
 					fields["AAB_DATE"],
 					fields["AAB_CUR"],
-					Secret).Hash("MD5").ToUpperInvariant();
+					Secret).Hash(HashAlgorithm).ToUpperInvariant();
 			return new PaymentDetails {
 				Url = Url,
 				Fields = fields
@@ -82,7 +87,7 @@ namespace Mios.Payment.Providers {
 					fields["AAB-RETURN-STAMP"],
 					fields["AAB-RETURN-REF"],
 					fields["AAB-RETURN-PAID"],
-					Secret).Hash("MD5").ToUpperInvariant();
+					Secret).Hash(HashAlgorithm).ToUpperInvariant();
 			if(expected.Equals(fields["AAB-RETURN-MAC"])) {
 				return true;
 			}
