@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using NLog;
 
-namespace Mios.Payment.Providers {
-	public class DibsPaymentProvider : IPaymentProvider {
+namespace Mios.Payment.Providers
+{
+    public class DibsPaymentProvider : IPaymentProvider {
 		static readonly Logger log = LogManager.GetCurrentClassLogger();
 		
 		public string MerchantId { get; set; }

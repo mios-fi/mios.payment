@@ -25,7 +25,7 @@ namespace Mios.Payment.Providers {
 		public PaymentDetails GenerateDetails(string identifier, decimal amount, string returnUrl, string errorUrl, string message) {
 			var response = Task.Run(() => MakeApiCall(new Dictionary<string,string> {
 				{"METHOD", "SetExpressCheckout"},
-			  {"PAYMENTREQUEST_0_DESC", message},
+			    {"PAYMENTREQUEST_0_DESC", message},
 				{"PAYMENTREQUEST_0_PAYMENTACTION", "SALE"},
 				{"PAYMENTREQUEST_0_AMT", amount.ToString("f2",CultureInfo.InvariantCulture)},
 				{"PAYMENTREQUEST_0_CURRENCYCODE", Currency},

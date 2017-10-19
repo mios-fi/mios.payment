@@ -28,7 +28,7 @@ namespace Tests {
 					throw new ArgumentOutOfRangeException("The specified stream does not contain a private key");
 				parameters = DotNetUtilities.ToRSAParameters((RsaPrivateCrtKeyParameters)pair.Private);
 			}
-			Assert.NotNull(parameters);
+            Assert.NotEqual(default(RSAParameters), parameters);
 		}
 	}
 }
